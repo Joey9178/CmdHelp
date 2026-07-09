@@ -1,0 +1,1624 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CmdHelp · Windows 工具插件包</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        /* ===== 全局重置 & 基础 ===== */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #7c3aed;
+            --primary-light: #a78bfa;
+            --primary-dark: #5b21b6;
+            --accent: #06b6d4;
+            --accent-light: #67e8f9;
+            --bg-dark: #0b0b1a;
+            --bg-card: rgba(255, 255, 255, 0.04);
+            --border-glow: rgba(124, 58, 237, 0.25);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --radius: 20px;
+            --shadow-glow: 0 0 60px rgba(124, 58, 237, 0.15);
+            --transition: 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        html {
+            scroll-behavior: smooth;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        img {
+            max-width: 100%;
+            display: block;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* ===== 背景动态光晕 ===== */
+        .bg-glow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-glow .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.35;
+            animation: orbFloat 20s ease-in-out infinite alternate;
+        }
+
+        .bg-glow .orb:nth-child(1) {
+            width: 600px;
+            height: 600px;
+            top: -10%;
+            left: -5%;
+            background: radial-gradient(circle, #7c3aed, transparent 70%);
+            animation-duration: 22s;
+        }
+
+        .bg-glow .orb:nth-child(2) {
+            width: 500px;
+            height: 500px;
+            bottom: -10%;
+            right: -5%;
+            background: radial-gradient(circle, #06b6d4, transparent 70%);
+            animation-duration: 26s;
+            animation-delay: -6s;
+        }
+
+        .bg-glow .orb:nth-child(3) {
+            width: 400px;
+            height: 400px;
+            top: 40%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: radial-gradient(circle, #8b5cf6, transparent 70%);
+            animation-duration: 18s;
+            animation-delay: -10s;
+            opacity: 0.2;
+        }
+
+        @keyframes orbFloat {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+            33% {
+                transform: translate(40px, -30px) scale(1.1);
+            }
+            66% {
+                transform: translate(-20px, 40px) scale(0.9);
+            }
+            100% {
+                transform: translate(30px, -20px) scale(1.05);
+            }
+        }
+
+        /* ===== 网格纹理 ===== */
+        .bg-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        /* ===== 导航栏 ===== */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 16px 0;
+            background: rgba(11, 11, 26, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            transition: var(--transition);
+        }
+
+        .navbar.scrolled {
+            background: rgba(11, 11, 26, 0.85);
+            border-bottom-color: rgba(124, 58, 237, 0.15);
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .navbar .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .navbar .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            font-size: 22px;
+            letter-spacing: -0.5px;
+            color: #fff;
+        }
+
+        .navbar .logo .badge {
+            font-size: 11px;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            padding: 2px 12px;
+            border-radius: 100px;
+            color: #fff;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+
+        .navbar .logo i {
+            background: linear-gradient(135deg, var(--primary-light), var(--accent-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 26px;
+        }
+
+        .navbar .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            list-style: none;
+        }
+
+        .navbar .nav-links a {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .navbar .nav-links a::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -4px;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transition: var(--transition);
+            border-radius: 4px;
+        }
+
+        .navbar .nav-links a:hover {
+            color: #fff;
+        }
+        .navbar .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .navbar .nav-ghost {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: var(--transition);
+            padding: 8px 16px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .navbar .nav-ghost:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(124, 58, 237, 0.3);
+        }
+
+        .navbar .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            padding: 4px;
+        }
+        .navbar .hamburger span {
+            display: block;
+            width: 26px;
+            height: 2.5px;
+            background: #fff;
+            border-radius: 4px;
+            transition: var(--transition);
+            transform-origin: center;
+        }
+        .navbar .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        .navbar .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+        .navbar .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+
+        /* ===== Hero ===== */
+        .hero {
+            position: relative;
+            z-index: 1;
+            padding: 140px 0 80px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+
+        .hero .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .hero-content {
+            animation: fadeUp 1s ease-out forwards;
+        }
+
+        .hero-content .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--accent-light);
+            background: rgba(6, 182, 212, 0.1);
+            padding: 6px 18px 6px 14px;
+            border-radius: 100px;
+            border: 1px solid rgba(6, 182, 212, 0.15);
+            margin-bottom: 24px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .hero-content .tag .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            animation: pulseDot 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseDot {
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.4;
+                transform: scale(0.7);
+            }
+        }
+
+        .hero-content h1 {
+            font-size: clamp(48px, 7vw, 82px);
+            font-weight: 900;
+            line-height: 1.05;
+            letter-spacing: -2px;
+            margin-bottom: 16px;
+        }
+
+        .hero-content h1 .gradient-text {
+            background: linear-gradient(135deg, #c4b5fd, #818cf8, #67e8f9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-content .subtitle {
+            font-size: clamp(18px, 2vw, 24px);
+            font-weight: 400;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .hero-content .description {
+            font-size: 16px;
+            color: var(--text-secondary);
+            max-width: 480px;
+            margin: 20px 0 36px;
+            line-height: 1.8;
+        }
+
+        .hero-content .description strong {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .hero-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 32px;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff;
+            box-shadow: 0 4px 24px rgba(124, 58, 237, 0.35);
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary));
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 40px rgba(124, 58, 237, 0.5);
+        }
+        .btn-primary:hover::before {
+            opacity: 1;
+        }
+        .btn-primary:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .btn-primary span,
+        .btn-primary i {
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-secondary i {
+            color: var(--text-secondary);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-secondary);
+            padding: 14px 20px;
+            gap: 8px;
+        }
+
+        .btn-ghost:hover {
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
+        .btn-ghost i {
+            font-size: 18px;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 40px;
+            margin-top: 44px;
+            padding-top: 32px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .hero-stats .stat {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .hero-stats .stat .number {
+            font-size: 24px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .hero-stats .stat .label {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        /* ===== Hero 右侧视觉 ===== */
+        .hero-visual {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: fadeUp 1s ease-out 0.2s forwards;
+            opacity: 0;
+        }
+
+        .hero-visual .mockup {
+            width: 100%;
+            max-width: 520px;
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 28px 24px 24px;
+            backdrop-filter: blur(12px);
+            box-shadow: var(--shadow-glow);
+            transition: var(--transition);
+        }
+
+        .hero-visual .mockup:hover {
+            border-color: rgba(124, 58, 237, 0.2);
+            box-shadow: 0 0 80px rgba(124, 58, 237, 0.08);
+        }
+
+        .mockup .mockup-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .mockup .mockup-header .dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .mockup .mockup-header .dots span {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .mockup .mockup-header .dots span:nth-child(1) {
+            background: #ef4444;
+        }
+        .mockup .mockup-header .dots span:nth-child(2) {
+            background: #f59e0b;
+        }
+        .mockup .mockup-header .dots span:nth-child(3) {
+            background: #22c55e;
+        }
+
+        .mockup .mockup-header .title-bar {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-left: 8px;
+            letter-spacing: 0.3px;
+        }
+
+        .mockup .mockup-body {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .mockup .mockup-body .line {
+            height: 12px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.04);
+            animation: shimmer 3s infinite;
+        }
+
+        .mockup .mockup-body .line:nth-child(1) {
+            width: 70%;
+            background: linear-gradient(90deg, rgba(124, 58, 237, 0.3), rgba(6, 182, 212, 0.2));
+        }
+        .mockup .mockup-body .line:nth-child(2) {
+            width: 50%;
+        }
+        .mockup .mockup-body .line:nth-child(3) {
+            width: 85%;
+            background: linear-gradient(90deg, rgba(124, 58, 237, 0.15), rgba(6, 182, 212, 0.1));
+        }
+        .mockup .mockup-body .line:nth-child(4) {
+            width: 40%;
+        }
+        .mockup .mockup-body .line:nth-child(5) {
+            width: 65%;
+            background: linear-gradient(90deg, rgba(124, 58, 237, 0.2), rgba(6, 182, 212, 0.15));
+        }
+        .mockup .mockup-body .line:nth-child(6) {
+            width: 30%;
+        }
+        .mockup .mockup-body .line:nth-child(7) {
+            width: 90%;
+            background: linear-gradient(90deg, rgba(124, 58, 237, 0.1), rgba(6, 182, 212, 0.08));
+        }
+
+        .mockup .mockup-body .line:last-child {
+            margin-top: 12px;
+            height: 32px;
+            width: 60%;
+            border-radius: 10px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            opacity: 0.6;
+        }
+
+        @keyframes shimmer {
+            0% {
+                opacity: 0.4;
+            }
+            50% {
+                opacity: 0.8;
+            }
+            100% {
+                opacity: 0.4;
+            }
+        }
+
+        .mockup .mockup-footer {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .mockup .mockup-footer .cmd-tag {
+            font-family: 'Courier New', monospace;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 4px 12px;
+            border-radius: 6px;
+            color: var(--text-secondary);
+        }
+
+        /* ===== 功能特性 ===== */
+        .features {
+            position: relative;
+            z-index: 1;
+            padding: 80px 0 100px;
+        }
+
+        .features .section-header {
+            text-align: center;
+            max-width: 640px;
+            margin: 0 auto 60px;
+        }
+
+        .features .section-header .badge {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--accent-light);
+            background: rgba(6, 182, 212, 0.08);
+            padding: 4px 16px;
+            border-radius: 100px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(6, 182, 212, 0.1);
+        }
+
+        .features .section-header h2 {
+            font-size: clamp(32px, 4vw, 44px);
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 16px;
+        }
+
+        .features .section-header h2 .highlight {
+            background: linear-gradient(135deg, var(--primary-light), var(--accent-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .features .section-header p {
+            color: var(--text-secondary);
+            font-size: 17px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 24px;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 32px 28px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(8px);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(124, 58, 237, 0.15);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-card .icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 18px;
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.15), rgba(6, 182, 212, 0.08));
+            color: var(--primary-light);
+        }
+
+        .feature-card h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.3px;
+        }
+
+        .feature-card p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* ===== 下载区域 ===== */
+        .download-section {
+            position: relative;
+            z-index: 1;
+            padding: 80px 0 100px;
+            background: rgba(255, 255, 255, 0.01);
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .download-section .section-header {
+            text-align: center;
+            max-width: 640px;
+            margin: 0 auto 50px;
+        }
+
+        .download-section .section-header .badge {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--primary-light);
+            background: rgba(124, 58, 237, 0.08);
+            padding: 4px 16px;
+            border-radius: 100px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(124, 58, 237, 0.1);
+        }
+
+        .download-section .section-header h2 {
+            font-size: clamp(32px, 4vw, 44px);
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 16px;
+        }
+
+        .download-section .section-header p {
+            color: var(--text-secondary);
+            font-size: 17px;
+        }
+
+        .download-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .download-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 36px 32px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(8px);
+            transition: var(--transition);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .download-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(124, 58, 237, 0.12);
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
+        }
+
+        .download-card .card-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 16px;
+        }
+
+        .download-card .card-icon.primary {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(124, 58, 237, 0.05));
+            color: var(--primary-light);
+        }
+
+        .download-card .card-icon.secondary {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(6, 182, 212, 0.05));
+            color: var(--accent-light);
+        }
+
+        .download-card h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .download-card .card-sub {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .download-card .card-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .download-card .btn {
+            width: 100%;
+            justify-content: center;
+            padding: 14px 20px;
+        }
+
+        .download-card .btn-primary {
+            box-shadow: 0 4px 24px rgba(124, 58, 237, 0.25);
+        }
+        .download-card .btn-primary:hover {
+            box-shadow: 0 8px 40px rgba(124, 58, 237, 0.4);
+        }
+
+        .download-card .btn-secondary {
+            background: rgba(6, 182, 212, 0.08);
+            border-color: rgba(6, 182, 212, 0.15);
+            color: #fff;
+        }
+
+        .download-card .btn-secondary:hover {
+            background: rgba(6, 182, 212, 0.15);
+            border-color: rgba(6, 182, 212, 0.3);
+        }
+
+        .download-card .btn-ghost-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            color: var(--text-secondary);
+            width: 100%;
+            justify-content: center;
+            padding: 14px 20px;
+            border-radius: 14px;
+            font-weight: 500;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+        }
+
+        .download-card .btn-ghost-card:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .download-card .btn-ghost-card i {
+            color: var(--text-muted);
+        }
+
+        .divider-text {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 500;
+            margin: 12px 0;
+            width: 100%;
+        }
+
+        .divider-text::before,
+        .divider-text::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        /* ===== GitHub 区域 ===== */
+        .github-section {
+            position: relative;
+            z-index: 1;
+            padding: 60px 0 80px;
+            text-align: center;
+        }
+
+        .github-section .github-card {
+            display: inline-flex;
+            align-items: center;
+            gap: 20px;
+            background: var(--bg-card);
+            padding: 20px 36px 20px 28px;
+            border-radius: 100px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(8px);
+            transition: var(--transition);
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .github-section .github-card:hover {
+            border-color: rgba(124, 58, 237, 0.15);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .github-section .github-card .gh-icon {
+            font-size: 32px;
+            color: #fff;
+        }
+
+        .github-section .github-card .gh-info {
+            text-align: left;
+        }
+
+        .github-section .github-card .gh-info .gh-title {
+            font-weight: 600;
+            font-size: 16px;
+            color: #fff;
+        }
+
+        .github-section .github-card .gh-info .gh-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .github-section .github-card .btn-ghost {
+            padding: 10px 24px;
+            border-radius: 100px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .github-section .github-card .btn-ghost:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            border-color: rgba(124, 58, 237, 0.2);
+        }
+
+        /* ===== Footer ===== */
+        .footer {
+            position: relative;
+            z-index: 1;
+            padding: 40px 0 32px;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .footer .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .footer .copyright {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .footer .copyright a {
+            color: var(--text-secondary);
+            transition: var(--transition);
+        }
+
+        .footer .copyright a:hover {
+            color: #fff;
+        }
+
+        .footer .footer-links {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .footer .footer-links a {
+            font-size: 14px;
+            color: var(--text-muted);
+            transition: var(--transition);
+        }
+
+        .footer .footer-links a:hover {
+            color: #fff;
+        }
+
+        .footer .footer-links a i {
+            font-size: 18px;
+        }
+
+        /* ===== Toast 提示 ===== */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: rgba(11, 11, 26, 0.92);
+            backdrop-filter: blur(16px);
+            padding: 14px 28px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            font-size: 14px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .toast i {
+            font-size: 20px;
+        }
+        .toast i.success {
+            color: #22c55e;
+        }
+        .toast i.info {
+            color: var(--accent-light);
+        }
+        .toast i.warning {
+            color: #f59e0b;
+        }
+
+        /* ===== 动画 ===== */
+        @keyframes fadeUp {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 1024px) {
+            .hero .container {
+                grid-template-columns: 1fr;
+                gap: 40px;
+                text-align: center;
+            }
+
+            .hero-content .description {
+                max-width: 100%;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .hero-buttons {
+                justify-content: center;
+            }
+
+            .hero-stats {
+                justify-content: center;
+            }
+
+            .hero-visual .mockup {
+                max-width: 420px;
+                margin: 0 auto;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar .nav-links {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: rgba(11, 11, 26, 0.95);
+                backdrop-filter: blur(20px);
+                padding: 24px 32px 32px;
+                gap: 16px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            }
+
+            .navbar .nav-links.open {
+                display: flex;
+            }
+
+            .navbar .hamburger {
+                display: flex;
+            }
+
+            .navbar .nav-ghost {
+                margin-top: 8px;
+                justify-content: center;
+            }
+
+            .hero {
+                padding: 120px 0 60px;
+                min-height: auto;
+            }
+
+            .hero-content h1 {
+                font-size: 44px;
+            }
+
+            .hero-stats {
+                gap: 24px;
+                flex-wrap: wrap;
+            }
+
+            .hero-visual .mockup {
+                max-width: 100%;
+                padding: 20px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .download-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .github-section .github-card {
+                border-radius: 20px;
+                padding: 24px;
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .github-section .github-card .gh-info {
+                text-align: center;
+            }
+
+            .footer .container {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .download-card {
+                padding: 28px 20px;
+            }
+
+            .toast {
+                width: calc(100% - 40px);
+                bottom: 16px;
+                padding: 12px 20px;
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-content h1 {
+                font-size: 34px;
+            }
+            .hero-content .subtitle {
+                font-size: 16px;
+            }
+            .hero-buttons .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            .hero-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+            .hero-stats .stat .number {
+                font-size: 20px;
+            }
+        }
+
+        /* ===== 滚动条 ===== */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(124, 58, 237, 0.3);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(124, 58, 237, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== 背景 ===== -->
+    <div class="bg-glow">
+        <div class="orb"></div>
+        <div class="orb"></div>
+        <div class="orb"></div>
+    </div>
+    <div class="bg-grid"></div>
+
+    <!-- ===== Toast ===== -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle success"></i>
+        <span id="toastMsg">操作成功</span>
+    </div>
+
+    <!-- ===== 导航栏 ===== -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <a href="#" class="logo">
+                <i class="fas fa-terminal"></i>
+                CmdHelp
+                <span class="badge">v1.0</span>
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#features">功能</a></li>
+                <li><a href="#download">下载</a></li>
+                <li>
+                    <a href="https://github.com/Joey9178/CmdHelp/releases" target="_blank" class="nav-ghost">
+                        <i class="fab fa-github"></i> GitHub
+                    </a>
+                </li>
+            </ul>
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ===== Hero ===== -->
+    <section class="hero" id="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="tag">
+                    <span class="dot"></span>
+                    最新版本 v1.0 · 稳定版
+                </div>
+                <h1>
+                    <span class="gradient-text">CmdHelp</span>
+                </h1>
+                <p class="subtitle">Windows 工具插件包</p>
+                <p class="description">
+                    为 <strong>Windows 命令行</strong> 打造的轻量级增强工具包。
+                    集成智能补全、快捷操作、插件管理，让终端操作 <strong>效率翻倍</strong>。
+                </p>
+                <div class="hero-buttons">
+                    <a href="mysetup.exe" download="CmdHelp_Setup.exe" class="btn btn-primary">
+                        <i class="fas fa-download"></i>
+                        <span>立即下载 · 渠道一</span>
+                    </a>
+                    <a href="https://github.com/Joey9178/CmdHelp/releases/v1.0/mysetup.exe" target="_blank" class="btn btn-secondary">
+                        <i class="fas fa-cloud-download-alt"></i>
+                        <span>备用下载 · 渠道二</span>
+                    </a>
+                    <a href="https://github.com/Joey9178/CmdHelp/releases" target="_blank" class="btn btn-ghost">
+                        <i class="fab fa-github"></i>
+                        <span>源码</span>
+                    </a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="number">v1.0</span>
+                        <span class="label">最新版本</span>
+                    </div>
+                    <div class="stat">
+                        <span class="number">100%</span>
+                        <span class="label">开源免费</span>
+                    </div>
+                    <div class="stat">
+                        <span class="number">Win 10+</span>
+                        <span class="label">系统支持</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="mockup">
+                    <div class="mockup-header">
+                        <div class="dots">
+                            <span></span><span></span><span></span>
+                        </div>
+                        <span class="title-bar">CmdHelp · 终端增强</span>
+                    </div>
+                    <div class="mockup-body">
+                        <div class="line"></div>
+                        <div class="line"></div>
+                        <div class="line"></div>
+                        <div class="line"></div>
+                        <div class="line"></div>
+                        <div class="line"></div>
+                        <div class="line"></div>
+                    </div>
+                    <div class="mockup-footer">
+                        <span class="cmd-tag">C:\&gt; cmdhelp --version</span>
+                        <span style="color: var(--text-muted);">v1.0.0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== 功能特性 ===== -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header reveal">
+                <div class="badge">✦ 核心能力</div>
+                <h2>
+                    让命令行 <span class="highlight">更智能</span>
+                </h2>
+                <p>CmdHelp 为 Windows 终端注入强大动力，从日常操作到高级调试，全面提效。</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card reveal">
+                    <div class="icon"><i class="fas fa-magic"></i></div>
+                    <h3>智能命令补全</h3>
+                    <p>基于上下文实时推荐命令，自动补全路径与参数，大幅减少输入错误与记忆负担。</p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="icon"><i class="fas fa-puzzle-piece"></i></div>
+                    <h3>插件化架构</h3>
+                    <p>支持动态加载插件，按需扩展功能。社区插件仓库持续更新，满足各类场景需求。</p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="icon"><i class="fas fa-bolt"></i></div>
+                    <h3>快捷操作面板</h3>
+                    <p>一键执行常用命令组合，自定义快捷指令，将重复操作压缩为一次按键。</p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="icon"><i class="fas fa-shield-alt"></i></div>
+                    <h3>安全 &amp; 兼容</h3>
+                    <p>完美兼容 Windows 10/11，不影响系统原生行为，轻量无侵入，随时可卸载。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== 下载区域 ===== -->
+    <section class="download-section" id="download">
+        <div class="container">
+            <div class="section-header reveal">
+                <div class="badge">⬇ 获取 CmdHelp</div>
+                <h2>选择 <span class="highlight">下载渠道</span></h2>
+                <p>两种方式任选其一，推荐使用渠道一获取最新稳定版本。</p>
+            </div>
+            <div class="download-grid">
+                <!-- 渠道一 -->
+                <div class="download-card reveal">
+                    <div class="card-icon primary">
+                        <i class="fas fa-download"></i>
+                    </div>
+                    <h3>渠道一 · 直连下载</h3>
+                    <p class="card-sub">推荐 · 高速稳定</p>
+                    <p class="card-desc">
+                        从本站服务器直接下载 <strong>mysetup.exe</strong> 安装包。
+                        适合首次安装或快速获取。
+                    </p>
+                    <a href="mysetup.exe" download="CmdHelp_Setup.exe" class="btn btn-primary">
+                        <i class="fas fa-arrow-down"></i>
+                        下载 mysetup.exe
+                    </a>
+                    <div class="divider-text">或</div>
+                    <a href="mysetup.exe" download="CmdHelp_Setup.exe" class="btn-ghost-card">
+                        <i class="fas fa-redo-alt"></i>
+                        点击重新下载
+                    </a>
+                </div>
+
+                <!-- 渠道二 -->
+                <div class="download-card reveal">
+                    <div class="card-icon secondary">
+                        <i class="fab fa-github"></i>
+                    </div>
+                    <h3>渠道二 · GitHub 发布</h3>
+                    <p class="card-sub">开源镜像 · 安全可靠</p>
+                    <p class="card-desc">
+                        前往 GitHub Releases 页面下载 <strong>mysetup.exe</strong>。
+                        适合开发者或需要历史版本的用户。
+                    </p>
+                    <a href="https://github.com/Joey9178/CmdHelp/releases/v1.0/mysetup.exe" target="_blank" class="btn btn-secondary">
+                        <i class="fab fa-github"></i>
+                        打开 GitHub 下载
+                    </a>
+                    <div class="divider-text">源码</div>
+                    <a href="https://github.com/Joey9178/CmdHelpmain" target="_blank" class="btn-ghost-card">
+                        <i class="fas fa-code"></i>
+                        浏览 GitHub 源码 &amp; Releases
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== GitHub 直达 ===== -->
+    <section class="github-section" id="github">
+        <div class="container">
+            <div class="github-card reveal">
+                <i class="fab fa-github gh-icon"></i>
+                <div class="gh-info">
+                    <div class="gh-title">CmdHelp · 开源项目</div>
+                    <div class="gh-desc">完全开源，欢迎 Star &amp; Fork，共同完善 Windows 工具生态</div>
+                </div>
+                <a href="https://github.com/Joey9178/CmdHelp/releases" target="_blank" class="btn-ghost">
+                    <i class="fas fa-external-link-alt"></i>
+                    前往 GitHub
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== Footer ===== -->
+    <footer class="footer">
+        <div class="container">
+            <div class="copyright">
+                &copy; 2026 <a href="#">CmdHelp</a> · 开源协议 MIT
+            </div>
+            <div class="footer-links">
+                <a href="https://github.com/Joey9178/CmdHelp/releases" target="_blank">
+                    <i class="fab fa-github"></i>
+                </a>
+                <a href="#" onclick="event.preventDefault(); showToast('感谢使用 CmdHelp ❤️', 'info')">关于</a>
+                <a href="#" onclick="event.preventDefault(); showToast('当前版本 v1.0 · 稳定版', 'info')">版本</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ===== JavaScript ===== -->
+    <script>
+        // ===== 导航栏滚动效果 =====
+        const navbar = document.getElementById('navbar');
+        let lastScroll = 0;
+
+        window.addEventListener('scroll', () => {
+            const current = window.scrollY;
+            if (current > 60) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+            lastScroll = current;
+        });
+
+        // ===== 移动端汉堡菜单 =====
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.getElementById('navLinks');
+
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            navLinks.classList.toggle('open');
+        });
+
+        // 点击导航链接后关闭菜单
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('active');
+                navLinks.classList.remove('open');
+            });
+        });
+
+        // ===== Toast 提示 =====
+        let toastTimer = null;
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            const icon = toast.querySelector('i');
+
+            // 重置图标
+            icon.className = 'fas';
+            if (type === 'success') {
+                icon.classList.add('fa-check-circle', 'success');
+            } else if (type === 'info') {
+                icon.classList.add('fa-info-circle', 'info');
+            } else if (type === 'warning') {
+                icon.classList.add('fa-exclamation-triangle', 'warning');
+            }
+
+            toastMsg.textContent = message;
+            toast.classList.add('show');
+
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // ===== 滚动揭示动画 (Intersection Observer) =====
+        const revealElements = document.querySelectorAll('.reveal');
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, {
+            threshold: 0.15,
+            rootMargin: '0px 0px -40px 0px'
+        });
+
+        revealElements.forEach(el => observer.observe(el));
+
+        // ===== 下载渠道提示 (增强体验) =====
+        // 渠道一：直接下载 (由浏览器处理)
+        // 渠道二：打开 GitHub 链接
+
+        // 拦截渠道二点击，添加友好提示（但不阻止跳转）
+        document.querySelectorAll('a[href*="github.com/Joey9178/CmdHelp/releases"]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                // 如果是渠道二的下载链接，显示提示
+                if (this.href.includes('/v1.0/mysetup.exe')) {
+                    showToast('正在跳转到 GitHub 下载页面 ...', 'info');
+                } else {
+                    showToast('正在打开 GitHub 项目页面 ...', 'info');
+                }
+                // 不阻止默认行为，正常跳转
+            });
+        });
+
+        // 渠道一下载提示
+        document.querySelectorAll('a[download]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                // 检查是否是渠道一的下载链接
+                if (this.href.includes('mysetup.exe') || this.getAttribute('download')) {
+                    showToast('开始下载 mysetup.exe ...', 'success');
+                }
+            });
+        });
+
+        // ===== 键盘快捷键: 按 D 键快速下载 =====
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'd' || e.key === 'D') {
+                if (!e.ctrlKey && !e.metaKey) {
+                    const primaryBtn = document.querySelector('.hero-buttons .btn-primary');
+                    if (primaryBtn) {
+                        primaryBtn.click();
+                        showToast('快捷键触发下载渠道一 ✅', 'success');
+                    }
+                }
+            }
+            if (e.key === 'g' || e.key === 'G') {
+                if (!e.ctrlKey && !e.metaKey) {
+                    const githubLink = document.querySelector('.hero-buttons .btn-ghost');
+                    if (githubLink) {
+                        githubLink.click();
+                        showToast('正在打开 GitHub ...', 'info');
+                    }
+                }
+            }
+        });
+
+        // ===== 控制台彩蛋 =====
+        console.log('%c CmdHelp v1.0 ',
+            'background: linear-gradient(135deg, #7c3aed, #06b6d4); color: #fff; font-size: 20px; font-weight: 700; padding: 12px 24px; border-radius: 12px;'
+            );
+        console.log('%c Windows 工具插件包 · 开源免费 ', 'color: #94a3b8; font-size: 14px;');
+        console.log('%c GitHub: https://github.com/Joey9178/CmdHelp/releases ', 'color: #a78bfa;');
+
+        // ===== 页面加载完成提示 =====
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                showToast('✨ CmdHelp v1.0 已就绪，欢迎使用！', 'info');
+            }, 600);
+        });
+    </script>
+
+</body>
+</html>
