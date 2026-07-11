@@ -1654,7 +1654,7 @@
         // 你的 anon 公钥（已替换为你提供的密钥）
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkeHdidXdudnN1cG5xcWd0ZmRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NjA4NTcsImV4cCI6MjA5OTMzNjg1N30.G7liyRNI3YExqMF65-ZGle__7dvjShlQ7lz7lg5NKWI';
 
-        // 初始化 Supabase 客户端
+        // 初始化 Supabase 客户端（只声明一次）
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // 获取 DOM 元素
