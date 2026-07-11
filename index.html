@@ -1,12 +1,12 @@
 <!DOCTYPE html>
+<!-- saved from url=(0035)https://joey9178.github.io/CmdHelp/ -->
 <html lang="zh-CN">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CmdHelp · Windows 工具插件包</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link href="./CmdHelp · Windows 工具插件包_files/css2" rel="stylesheet">
+    <link rel="stylesheet" href="./CmdHelp · Windows 工具插件包_files/all.min.css">
     <style>
         /* ===== 全局重置 & 基础 == === */
         *,
@@ -1256,21 +1256,34 @@
 
     <!-- ===== Toast ===== -->
     <div class="toast" id="toast">
-        <i class="fas fa-check-circle success"></i>
-        <span id="toastMsg">操作成功</span>
+        <i class="fas fa-info-circle info"></i>
+        <span id="toastMsg">✨ CmdHelp v1.0 已就绪，欢迎使用！</span>
     </div>
 
     <!-- ===== 导航栏 ===== -->
-    <nav class="navbar" id="navbar">
+    <nav class="navbar scrolled" id="navbar">
         <div class="container">
-            <a href="#" class="logo">
+            <a href="https://joey9178.github.io/CmdHelp/#" class="logo">
                 <i class="fas fa-terminal"></i>
                 CmdHelp
                 <span class="badge">v1.0</span>
             </a>
             <ul class="nav-links" id="navLinks">
-                <li><a href="#features">功能</a></li>
-                <li><a href="#download">下载</a></li>
+                <li><a href="https://joey9178.github.io/CmdHelp/#features">功能</a></li>
+                <li><a href="https://joey9178.github.io/CmdHelp/#download">下载</a></li>
+                <!-- ===== 登录/退出按钮（新增） ===== -->
+                <li>
+                    <span id="userStatus" style="display:none; color: var(--text-secondary); font-size:14px; margin-right:8px;"></span>
+                </li>
+                <li>
+                    <a href="#" id="loginBtn" class="nav-ghost" style="display:inline-flex;">
+                        <i class="fas fa-sign-in-alt"></i> 登录
+                    </a>
+                    <a href="#" id="logoutBtn" class="nav-ghost" style="display:none;">
+                        <i class="fas fa-sign-out-alt"></i> 退出
+                    </a>
+                </li>
+                <!-- ===== 原有 GitHub 链接保留 ===== -->
                 <li>
                     <a href="https://github.com/Joey9178/CmdHelp/releases" target="_blank" class="nav-ghost">
                         <i class="fab fa-github"></i> GitHub
@@ -1302,7 +1315,7 @@
                     集成智能补全、快捷操作、插件管理，让终端操作 <strong>效率翻倍</strong>。
                 </p>
                 <div class="hero-buttons">
-                    <a href="mysetup.exe" download="CmdHelp_Setup.exe" class="btn btn-primary">
+                    <a href="https://joey9178.github.io/CmdHelp/mysetup.exe" download="CmdHelp_Setup.exe" class="btn btn-primary">
                         <i class="fas fa-download"></i>
                         <span>立即下载 · 渠道一</span>
                     </a>
@@ -1359,7 +1372,7 @@
     <!-- ===== 功能特性 ===== -->
     <section class="features" id="features">
         <div class="container">
-            <div class="section-header reveal">
+            <div class="section-header reveal visible">
                 <div class="badge">✦ 核心能力</div>
                 <h2>
                     让命令行 <span class="highlight">更智能</span>
@@ -1367,22 +1380,22 @@
                 <p>CmdHelp 为 Windows 终端注入强大动力，从日常操作到高级调试，全面提效。</p>
             </div>
             <div class="features-grid">
-                <div class="feature-card reveal">
+                <div class="feature-card reveal visible">
                     <div class="icon"><i class="fas fa-magic"></i></div>
                     <h3>智能命令补全</h3>
                     <p>基于上下文实时推荐命令，自动补全路径与参数，大幅减少输入错误与记忆负担。</p>
                 </div>
-                <div class="feature-card reveal">
+                <div class="feature-card reveal visible">
                     <div class="icon"><i class="fas fa-puzzle-piece"></i></div>
                     <h3>插件化架构</h3>
                     <p>支持动态加载插件，按需扩展功能。社区插件仓库持续更新，满足各类场景需求。</p>
                 </div>
-                <div class="feature-card reveal">
+                <div class="feature-card reveal visible">
                     <div class="icon"><i class="fas fa-bolt"></i></div>
                     <h3>快捷操作面板</h3>
                     <p>一键执行常用命令组合，自定义快捷指令，将重复操作压缩为一次按键。</p>
                 </div>
-                <div class="feature-card reveal">
+                <div class="feature-card reveal visible">
                     <div class="icon"><i class="fas fa-shield-alt"></i></div>
                     <h3>安全 &amp; 兼容</h3>
                     <p>完美兼容 Windows 10/11，不影响系统原生行为，轻量无侵入，随时可卸载。</p>
@@ -1394,14 +1407,14 @@
     <!-- ===== 下载区域 ===== -->
     <section class="download-section" id="download">
         <div class="container">
-            <div class="section-header reveal">
+            <div class="section-header reveal visible">
                 <div class="badge">⬇ 获取 CmdHelp</div>
                 <h2>选择 <span class="highlight">下载渠道</span></h2>
                 <p>两种方式任选其一，推荐使用渠道一获取最新稳定版本。</p>
             </div>
             <div class="download-grid">
                 <!-- 渠道一 -->
-                <div class="download-card reveal">
+                <div class="download-card reveal visible">
                     <div class="card-icon primary">
                         <i class="fas fa-download"></i>
                     </div>
@@ -1411,19 +1424,19 @@
                         从本站服务器直接下载 <strong>mysetup.exe</strong> 安装包。
                         适合首次安装或快速获取。
                     </p>
-                    <a href="mysetup.exe" download="CmdHelp_Setup.exe" class="btn btn-primary">
+                    <a href="https://joey9178.github.io/CmdHelp/mysetup.exe" download="CmdHelp_Setup.exe" class="btn btn-primary">
                         <i class="fas fa-arrow-down"></i>
                         下载 mysetup.exe
                     </a>
                     <div class="divider-text">或</div>
-                    <a href="mysetup.exe" download="CmdHelp_Setup.exe" class="btn-ghost-card">
+                    <a href="https://joey9178.github.io/CmdHelp/mysetup.exe" download="CmdHelp_Setup.exe" class="btn-ghost-card">
                         <i class="fas fa-redo-alt"></i>
                         点击重新下载
                     </a>
                 </div>
 
                 <!-- 渠道二 -->
-                <div class="download-card reveal">
+                <div class="download-card reveal visible">
                     <div class="card-icon secondary">
                         <i class="fab fa-github"></i>
                     </div>
@@ -1468,19 +1481,41 @@
     <footer class="footer">
         <div class="container">
             <div class="copyright">
-                &copy; 2026 <a href="#">CmdHelp</a> · 开源协议 MIT
+                © 2026 <a href="https://joey9178.github.io/CmdHelp/#">CmdHelp</a> · 开源协议 MIT
             </div>
             <div class="footer-links">
                 <a href="https://github.com/Joey9178/CmdHelp/releases" target="_blank">
                     <i class="fab fa-github"></i>
                 </a>
-                <a href="#" onclick="event.preventDefault(); showToast('感谢使用 CmdHelp ❤️', 'info')">关于</a>
-                <a href="#" onclick="event.preventDefault(); showToast('当前版本 v1.0 · 稳定版', 'info')">版本</a>
+                <a href="https://joey9178.github.io/CmdHelp/#" onclick="event.preventDefault(); showToast(&#39;感谢使用 CmdHelp ❤️&#39;, &#39;info&#39;)">关于</a>
+                <a href="https://joey9178.github.io/CmdHelp/#" onclick="event.preventDefault(); showToast(&#39;当前版本 v1.0 · 稳定版&#39;, &#39;info&#39;)">版本</a>
             </div>
         </div>
     </footer>
 
+    <!-- ===== 登录模态框（新增） ===== -->
+    <div id="authModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(8px); z-index:9999; justify-content:center; align-items:center;">
+        <div style="background:var(--bg-dark); padding:40px 32px; border-radius:var(--radius); max-width:400px; width:90%; border:1px solid rgba(255,255,255,0.08); box-shadow:0 24px 80px rgba(0,0,0,0.6); position:relative;">
+            <button id="closeModal" style="position:absolute; top:12px; right:16px; background:none; border:none; color:var(--text-muted); font-size:24px; cursor:pointer;">&times;</button>
+            <h3 style="font-size:24px; font-weight:700; margin-bottom:8px;">欢迎回来</h3>
+            <p style="color:var(--text-secondary); font-size:14px; margin-bottom:24px;">登录或注册以访问更多功能</p>
+            <div style="display:flex; flex-direction:column; gap:16px;">
+                <input type="email" id="modalEmail" placeholder="邮箱地址" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:14px 16px; color:#fff; font-size:15px; outline:none; transition:0.3s;">
+                <input type="password" id="modalPassword" placeholder="密码" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:14px 16px; color:#fff; font-size:15px; outline:none; transition:0.3s;">
+                <div id="modalError" style="color:#ef4444; font-size:14px; min-height:20px;"></div>
+                <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                    <button id="modalSignUp" class="btn btn-secondary" style="flex:1;">注册</button>
+                    <button id="modalSignIn" class="btn btn-primary" style="flex:1;">登录</button>
+                </div>
+            </div>
+            <p style="text-align:center; color:var(--text-muted); font-size:12px; margin-top:20px;">注册即表示同意服务条款</p>
+        </div>
+    </div>
+
     <!-- ===== JavaScript ===== -->
+    <!-- 引入 Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <script>
         // ===== 导航栏滚动效果 =====
         const navbar = document.getElementById('navbar');
@@ -1521,7 +1556,6 @@
             const toastMsg = document.getElementById('toastMsg');
             const icon = toast.querySelector('i');
 
-            // 重置图标
             icon.className = 'fas';
             if (type === 'success') {
                 icon.classList.add('fa-check-circle', 'success');
@@ -1557,33 +1591,25 @@
         revealElements.forEach(el => observer.observe(el));
 
         // ===== 下载渠道提示 (增强体验) =====
-        // 渠道一：直接下载 (由浏览器处理)
-        // 渠道二：打开 GitHub 链接
-
-        // 拦截渠道二点击，添加友好提示（但不阻止跳转）
         document.querySelectorAll('a[href*="github.com/Joey9178/CmdHelp/releases"]').forEach(link => {
             link.addEventListener('click', function(e) {
-                // 如果是渠道二的下载链接，显示提示
                 if (this.href.includes('/v1.0/mysetup.exe')) {
                     showToast('正在跳转到 GitHub 下载页面 ...', 'info');
                 } else {
                     showToast('正在打开 GitHub 项目页面 ...', 'info');
                 }
-                // 不阻止默认行为，正常跳转
             });
         });
 
-        // 渠道一下载提示
         document.querySelectorAll('a[download]').forEach(link => {
             link.addEventListener('click', function(e) {
-                // 检查是否是渠道一的下载链接
                 if (this.href.includes('mysetup.exe') || this.getAttribute('download')) {
                     showToast('开始下载 mysetup.exe ...', 'success');
                 }
             });
         });
 
-        // ===== 键盘快捷键: 按 D 键快速下载 =====
+        // ===== 键盘快捷键 =====
         document.addEventListener('keydown', (e) => {
             if (e.key === 'd' || e.key === 'D') {
                 if (!e.ctrlKey && !e.metaKey) {
@@ -1617,6 +1643,141 @@
             setTimeout(() => {
                 showToast('✨ CmdHelp v1.0 已就绪，欢迎使用！', 'info');
             }, 600);
+        });
+
+        // ============================================================
+        // ===== 🔐 Supabase 登录功能（新增） =====
+        // ============================================================
+
+        // 你的 Supabase 项目 URL（已固定）
+        const SUPABASE_URL = 'https://fdxwbuwnvsupnqqgtfdf.supabase.co';
+        // ⚠️ 重要：把你的 anon public 密钥填到下面单引号里
+        const SUPABASE_ANON_KEY = '你的anon公钥';   // <-- 替换这里
+
+        // 初始化 Supabase 客户端
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // 获取 DOM 元素
+        const loginBtn = document.getElementById('loginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const userStatus = document.getElementById('userStatus');
+        const modal = document.getElementById('authModal');
+        const closeModal = document.getElementById('closeModal');
+        const modalEmail = document.getElementById('modalEmail');
+        const modalPassword = document.getElementById('modalPassword');
+        const modalSignUp = document.getElementById('modalSignUp');
+        const modalSignIn = document.getElementById('modalSignIn');
+        const modalError = document.getElementById('modalError');
+
+        // ---- 打开模态框 ----
+        if (loginBtn) {
+            loginBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                modal.style.display = 'flex';
+                modalError.textContent = '';
+                modalError.style.color = '#ef4444';
+            });
+        }
+
+        // ---- 关闭模态框 ----
+        if (closeModal) {
+            closeModal.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+        }
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) modal.style.display = 'none';
+        });
+
+        // ---- 注册 ----
+        if (modalSignUp) {
+            modalSignUp.addEventListener('click', async () => {
+                const email = modalEmail.value.trim();
+                const password = modalPassword.value.trim();
+                if (!email || !password) {
+                    modalError.textContent = '请填写完整邮箱和密码';
+                    return;
+                }
+                const { data, error } = await supabase.auth.signUp({ email, password });
+                if (error) {
+                    modalError.textContent = error.message;
+                    modalError.style.color = '#ef4444';
+                } else {
+                    modalError.textContent = '✅ 注册成功！请查收验证邮件。';
+                    modalError.style.color = '#22c55e';
+                    setTimeout(() => {
+                        modal.style.display = 'none';
+                        modalError.style.color = '#ef4444';
+                    }, 2000);
+                }
+            });
+        }
+
+        // ---- 登录 ----
+        if (modalSignIn) {
+            modalSignIn.addEventListener('click', async () => {
+                const email = modalEmail.value.trim();
+                const password = modalPassword.value.trim();
+                if (!email || !password) {
+                    modalError.textContent = '请填写完整邮箱和密码';
+                    return;
+                }
+                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                if (error) {
+                    modalError.textContent = error.message;
+                    modalError.style.color = '#ef4444';
+                } else {
+                    modalError.textContent = '✅ 登录成功！';
+                    modalError.style.color = '#22c55e';
+                    setTimeout(() => {
+                        modal.style.display = 'none';
+                        modalError.style.color = '#ef4444';
+                    }, 1000);
+                }
+            });
+        }
+
+        // ---- 退出 ----
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                await supabase.auth.signOut();
+                showToast('已退出登录', 'info');
+            });
+        }
+
+        // ---- 监听登录状态变化 ----
+        supabase.auth.onAuthStateChange((event, session) => {
+            if (session) {
+                // 已登录
+                if (loginBtn) loginBtn.style.display = 'none';
+                if (logoutBtn) logoutBtn.style.display = 'inline-flex';
+                if (userStatus) {
+                    userStatus.textContent = '👤 ' + session.user.email;
+                    userStatus.style.display = 'inline';
+                }
+            } else {
+                // 未登录
+                if (loginBtn) loginBtn.style.display = 'inline-flex';
+                if (logoutBtn) logoutBtn.style.display = 'none';
+                if (userStatus) userStatus.style.display = 'none';
+            }
+        });
+
+        // ---- 页面加载时检查当前会话 ----
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session) {
+                if (loginBtn) loginBtn.style.display = 'none';
+                if (logoutBtn) logoutBtn.style.display = 'inline-flex';
+                if (userStatus) {
+                    userStatus.textContent = '👤 ' + session.user.email;
+                    userStatus.style.display = 'inline';
+                }
+            } else {
+                if (loginBtn) loginBtn.style.display = 'inline-flex';
+                if (logoutBtn) logoutBtn.style.display = 'none';
+                if (userStatus) userStatus.style.display = 'none';
+            }
         });
     </script>
 
