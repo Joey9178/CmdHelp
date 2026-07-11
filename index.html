@@ -1646,13 +1646,13 @@
         });
 
         // ============================================================
-        // ===== 🔐 Supabase 登录功能（新增） =====
+        // ===== 🔐 Supabase 登录功能（已配置你的 anon 密钥） =====
         // ============================================================
 
-        // 你的 Supabase 项目 URL（已固定）
+        // 你的 Supabase 项目 URL
         const SUPABASE_URL = 'https://fdxwbuwnvsupnqqgtfdf.supabase.co';
-        // ⚠️ 重要：把你的 anon public 密钥填到下面单引号里
-        const SUPABASE_ANON_KEY = '你的anon公钥';   // <-- 替换这里
+        // 你的 anon 公钥（已替换为你提供的密钥）
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkeHdidXdudnN1cG5xcWd0ZmRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NjA4NTcsImV4cCI6MjA5OTMzNjg1N30.G7liyRNI3YExqMF65-ZGle__7dvjShlQ7lz7lg5NKWI';
 
         // 初始化 Supabase 客户端
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
