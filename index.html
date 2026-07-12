@@ -1493,7 +1493,7 @@
         </div>
     </footer>
 
-    <!-- ===== 登录模态框（新增） ===== -->
+    <!-- ===== 登录模态框 ===== -->
     <div id="authModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(8px); z-index:9999; justify-content:center; align-items:center;">
         <div style="background:var(--bg-dark); padding:40px 32px; border-radius:var(--radius); max-width:400px; width:90%; border:1px solid rgba(255,255,255,0.08); box-shadow:0 24px 80px rgba(0,0,0,0.6); position:relative;">
             <button id="closeModal" style="position:absolute; top:12px; right:16px; background:none; border:none; color:var(--text-muted); font-size:24px; cursor:pointer;">&times;</button>
@@ -1517,268 +1517,273 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
-        // ===== 导航栏滚动效果 =====
-        const navbar = document.getElementById('navbar');
-        let lastScroll = 0;
+        // ============================================================
+        // 所有代码统一放在 DOMContentLoaded 中，确保元素已加载
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', function() {
 
-        window.addEventListener('scroll', () => {
-            const current = window.scrollY;
-            if (current > 60) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
-            }
-            lastScroll = current;
-        });
+            // ===== 导航栏滚动效果 =====
+            const navbar = document.getElementById('navbar');
+            let lastScroll = 0;
 
-        // ===== 移动端汉堡菜单 =====
-        const hamburger = document.getElementById('hamburger');
-        const navLinks = document.getElementById('navLinks');
-
-        hamburger.addEventListener('click', () => {
-            hamburger.classList.toggle('active');
-            navLinks.classList.toggle('open');
-        });
-
-        // 点击导航链接后关闭菜单
-        document.querySelectorAll('.nav-links a').forEach(link => {
-            link.addEventListener('click', () => {
-                hamburger.classList.remove('active');
-                navLinks.classList.remove('open');
-            });
-        });
-
-        // ===== Toast 提示 =====
-        let toastTimer = null;
-
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            const toastMsg = document.getElementById('toastMsg');
-            const icon = toast.querySelector('i');
-
-            icon.className = 'fas';
-            if (type === 'success') {
-                icon.classList.add('fa-check-circle', 'success');
-            } else if (type === 'info') {
-                icon.classList.add('fa-info-circle', 'info');
-            } else if (type === 'warning') {
-                icon.classList.add('fa-exclamation-triangle', 'warning');
-            }
-
-            toastMsg.textContent = message;
-            toast.classList.add('show');
-
-            clearTimeout(toastTimer);
-            toastTimer = setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
-        }
-
-        // ===== 滚动揭示动画 (Intersection Observer) =====
-        const revealElements = document.querySelectorAll('.reveal');
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
-            });
-        }, {
-            threshold: 0.15,
-            rootMargin: '0px 0px -40px 0px'
-        });
-
-        revealElements.forEach(el => observer.observe(el));
-
-        // ===== 下载渠道提示 (增强体验) =====
-        document.querySelectorAll('a[href*="github.com/Joey9178/CmdHelp/releases"]').forEach(link => {
-            link.addEventListener('click', function(e) {
-                if (this.href.includes('/v1.0/mysetup.exe')) {
-                    showToast('正在跳转到 GitHub 下载页面 ...', 'info');
+            window.addEventListener('scroll', () => {
+                const current = window.scrollY;
+                if (current > 60) {
+                    navbar.classList.add('scrolled');
                 } else {
-                    showToast('正在打开 GitHub 项目页面 ...', 'info');
+                    navbar.classList.remove('scrolled');
                 }
+                lastScroll = current;
             });
-        });
 
-        document.querySelectorAll('a[download]').forEach(link => {
-            link.addEventListener('click', function(e) {
-                if (this.href.includes('mysetup.exe') || this.getAttribute('download')) {
-                    showToast('开始下载 mysetup.exe ...', 'success');
+            // ===== 移动端汉堡菜单 =====
+            const hamburger = document.getElementById('hamburger');
+            const navLinks = document.getElementById('navLinks');
+
+            hamburger.addEventListener('click', () => {
+                hamburger.classList.toggle('active');
+                navLinks.classList.toggle('open');
+            });
+
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.addEventListener('click', () => {
+                    hamburger.classList.remove('active');
+                    navLinks.classList.remove('open');
+                });
+            });
+
+            // ===== Toast 提示 =====
+            let toastTimer = null;
+
+            function showToast(message, type = 'success') {
+                const toast = document.getElementById('toast');
+                const toastMsg = document.getElementById('toastMsg');
+                const icon = toast.querySelector('i');
+
+                icon.className = 'fas';
+                if (type === 'success') {
+                    icon.classList.add('fa-check-circle', 'success');
+                } else if (type === 'info') {
+                    icon.classList.add('fa-info-circle', 'info');
+                } else if (type === 'warning') {
+                    icon.classList.add('fa-exclamation-triangle', 'warning');
                 }
-            });
-        });
 
-        // ===== 键盘快捷键 =====
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'd' || e.key === 'D') {
-                if (!e.ctrlKey && !e.metaKey) {
-                    const primaryBtn = document.querySelector('.hero-buttons .btn-primary');
-                    if (primaryBtn) {
-                        primaryBtn.click();
-                        showToast('快捷键触发下载渠道一 ✅', 'success');
+                toastMsg.textContent = message;
+                toast.classList.add('show');
+
+                clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+
+            // ===== 滚动揭示动画 (Intersection Observer) =====
+            const revealElements = document.querySelectorAll('.reveal');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, {
+                threshold: 0.15,
+                rootMargin: '0px 0px -40px 0px'
+            });
+            revealElements.forEach(el => observer.observe(el));
+
+            // ===== 下载渠道提示 (增强体验) =====
+            document.querySelectorAll('a[href*="github.com/Joey9178/CmdHelp/releases"]').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    if (this.href.includes('/v1.0/mysetup.exe')) {
+                        showToast('正在跳转到 GitHub 下载页面 ...', 'info');
+                    } else {
+                        showToast('正在打开 GitHub 项目页面 ...', 'info');
+                    }
+                });
+            });
+
+            document.querySelectorAll('a[download]').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    if (this.href.includes('mysetup.exe') || this.getAttribute('download')) {
+                        showToast('开始下载 mysetup.exe ...', 'success');
+                    }
+                });
+            });
+
+            // ===== 键盘快捷键 =====
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'd' || e.key === 'D') {
+                    if (!e.ctrlKey && !e.metaKey) {
+                        const primaryBtn = document.querySelector('.hero-buttons .btn-primary');
+                        if (primaryBtn) {
+                            primaryBtn.click();
+                            showToast('快捷键触发下载渠道一 ✅', 'success');
+                        }
                     }
                 }
-            }
-            if (e.key === 'g' || e.key === 'G') {
-                if (!e.ctrlKey && !e.metaKey) {
-                    const githubLink = document.querySelector('.hero-buttons .btn-ghost');
-                    if (githubLink) {
-                        githubLink.click();
-                        showToast('正在打开 GitHub ...', 'info');
+                if (e.key === 'g' || e.key === 'G') {
+                    if (!e.ctrlKey && !e.metaKey) {
+                        const githubLink = document.querySelector('.hero-buttons .btn-ghost');
+                        if (githubLink) {
+                            githubLink.click();
+                            showToast('正在打开 GitHub ...', 'info');
+                        }
                     }
                 }
-            }
-        });
-
-        // ===== 控制台彩蛋 =====
-        console.log('%c CmdHelp v1.0 ',
-            'background: linear-gradient(135deg, #7c3aed, #06b6d4); color: #fff; font-size: 20px; font-weight: 700; padding: 12px 24px; border-radius: 12px;'
-            );
-        console.log('%c Windows 工具插件包 · 开源免费 ', 'color: #94a3b8; font-size: 14px;');
-        console.log('%c GitHub: https://github.com/Joey9178/CmdHelp/releases ', 'color: #a78bfa;');
-
-        // ===== 页面加载完成提示 =====
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                showToast('✨ CmdHelp v1.0 已就绪，欢迎使用！', 'info');
-            }, 600);
-        });
-
-        // ============================================================
-        // ===== 🔐 Supabase 登录功能（已配置你的 anon 密钥） =====
-        // ============================================================
-
-        // 你的 Supabase 项目 URL
-        const SUPABASE_URL = 'https://fdxwbuwnvsupnqqgtfdf.supabase.co';
-        // 你的 anon 公钥（已替换为你提供的密钥）
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkeHdidXdudnN1cG5xcWd0ZmRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NjA4NTcsImV4cCI6MjA5OTMzNjg1N30.G7liyRNI3YExqMF65-ZGle__7dvjShlQ7lz7lg5NKWI';
-
-        // 初始化 Supabase 客户端（只声明一次）
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        // 获取 DOM 元素
-        const loginBtn = document.getElementById('loginBtn');
-        const logoutBtn = document.getElementById('logoutBtn');
-        const userStatus = document.getElementById('userStatus');
-        const modal = document.getElementById('authModal');
-        const closeModal = document.getElementById('closeModal');
-        const modalEmail = document.getElementById('modalEmail');
-        const modalPassword = document.getElementById('modalPassword');
-        const modalSignUp = document.getElementById('modalSignUp');
-        const modalSignIn = document.getElementById('modalSignIn');
-        const modalError = document.getElementById('modalError');
-
-        // ---- 打开模态框 ----
-        if (loginBtn) {
-            loginBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                modal.style.display = 'flex';
-                modalError.textContent = '';
-                modalError.style.color = '#ef4444';
             });
-        }
 
-        // ---- 关闭模态框 ----
-        if (closeModal) {
-            closeModal.addEventListener('click', () => {
-                modal.style.display = 'none';
+            // ===== 控制台彩蛋 =====
+            console.log('%c CmdHelp v1.0 ',
+                'background: linear-gradient(135deg, #7c3aed, #06b6d4); color: #fff; font-size: 20px; font-weight: 700; padding: 12px 24px; border-radius: 12px;'
+                );
+            console.log('%c Windows 工具插件包 · 开源免费 ', 'color: #94a3b8; font-size: 14px;');
+            console.log('%c GitHub: https://github.com/Joey9178/CmdHelp/releases ', 'color: #a78bfa;');
+
+            // ===== 页面加载完成提示 =====
+            window.addEventListener('load', () => {
+                setTimeout(() => {
+                    showToast('✨ CmdHelp v1.0 已就绪，欢迎使用！', 'info');
+                }, 600);
             });
-        }
-        window.addEventListener('click', (e) => {
-            if (e.target === modal) modal.style.display = 'none';
-        });
 
-        // ---- 注册 ----
-        if (modalSignUp) {
-            modalSignUp.addEventListener('click', async () => {
-                const email = modalEmail.value.trim();
-                const password = modalPassword.value.trim();
-                if (!email || !password) {
-                    modalError.textContent = '请填写完整邮箱和密码';
-                    return;
-                }
-                const { data, error } = await supabase.auth.signUp({ email, password });
-                if (error) {
-                    modalError.textContent = error.message;
+            // ============================================================
+            // ===== 🔐 Supabase 登录功能（修复版） =====
+            // ============================================================
+
+            // Supabase 配置
+            const SUPABASE_URL = 'https://fdxwbuwnvsupnqqgtfdf.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkeHdidXdudnN1cG5xcWd0ZmRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NjA4NTcsImV4cCI6MjA5OTMzNjg1N30.G7liyRNI3YExqMF65-ZGle__7dvjShlQ7lz7lg5NKWI';
+
+            // 初始化 Supabase（只声明一次）
+            const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+            // 获取 DOM 元素
+            const loginBtn = document.getElementById('loginBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const userStatus = document.getElementById('userStatus');
+            const modal = document.getElementById('authModal');
+            const closeModal = document.getElementById('closeModal');
+            const modalEmail = document.getElementById('modalEmail');
+            const modalPassword = document.getElementById('modalPassword');
+            const modalSignUp = document.getElementById('modalSignUp');
+            const modalSignIn = document.getElementById('modalSignIn');
+            const modalError = document.getElementById('modalError');
+
+            // ---- 打开模态框（修复：确保阻止默认行为和冒泡） ----
+            if (loginBtn) {
+                loginBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();   // 防止其他事件干扰
+                    modal.style.display = 'flex';
+                    modalError.textContent = '';
                     modalError.style.color = '#ef4444';
-                } else {
-                    modalError.textContent = '✅ 注册成功！请查收验证邮件。';
-                    modalError.style.color = '#22c55e';
-                    setTimeout(() => {
-                        modal.style.display = 'none';
-                        modalError.style.color = '#ef4444';
-                    }, 2000);
-                }
-            });
-        }
-
-        // ---- 登录 ----
-        if (modalSignIn) {
-            modalSignIn.addEventListener('click', async () => {
-                const email = modalEmail.value.trim();
-                const password = modalPassword.value.trim();
-                if (!email || !password) {
-                    modalError.textContent = '请填写完整邮箱和密码';
-                    return;
-                }
-                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-                if (error) {
-                    modalError.textContent = error.message;
-                    modalError.style.color = '#ef4444';
-                } else {
-                    modalError.textContent = '✅ 登录成功！';
-                    modalError.style.color = '#22c55e';
-                    setTimeout(() => {
-                        modal.style.display = 'none';
-                        modalError.style.color = '#ef4444';
-                    }, 1000);
-                }
-            });
-        }
-
-        // ---- 退出 ----
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', async (e) => {
-                e.preventDefault();
-                await supabase.auth.signOut();
-                showToast('已退出登录', 'info');
-            });
-        }
-
-        // ---- 监听登录状态变化 ----
-        supabase.auth.onAuthStateChange((event, session) => {
-            if (session) {
-                // 已登录
-                if (loginBtn) loginBtn.style.display = 'none';
-                if (logoutBtn) logoutBtn.style.display = 'inline-flex';
-                if (userStatus) {
-                    userStatus.textContent = '👤 ' + session.user.email;
-                    userStatus.style.display = 'inline';
-                }
-            } else {
-                // 未登录
-                if (loginBtn) loginBtn.style.display = 'inline-flex';
-                if (logoutBtn) logoutBtn.style.display = 'none';
-                if (userStatus) userStatus.style.display = 'none';
+                });
             }
-        });
 
-        // ---- 页面加载时检查当前会话 ----
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            if (session) {
-                if (loginBtn) loginBtn.style.display = 'none';
-                if (logoutBtn) logoutBtn.style.display = 'inline-flex';
-                if (userStatus) {
-                    userStatus.textContent = '👤 ' + session.user.email;
-                    userStatus.style.display = 'inline';
-                }
-            } else {
-                if (loginBtn) loginBtn.style.display = 'inline-flex';
-                if (logoutBtn) logoutBtn.style.display = 'none';
-                if (userStatus) userStatus.style.display = 'none';
+            // ---- 关闭模态框 ----
+            if (closeModal) {
+                closeModal.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    modal.style.display = 'none';
+                });
             }
-        });
+            window.addEventListener('click', function(e) {
+                if (e.target === modal) modal.style.display = 'none';
+            });
+
+            // ---- 注册 ----
+            if (modalSignUp) {
+                modalSignUp.addEventListener('click', async function() {
+                    const email = modalEmail.value.trim();
+                    const password = modalPassword.value.trim();
+                    if (!email || !password) {
+                        modalError.textContent = '请填写完整邮箱和密码';
+                        return;
+                    }
+                    const { data, error } = await supabase.auth.signUp({ email, password });
+                    if (error) {
+                        modalError.textContent = error.message;
+                        modalError.style.color = '#ef4444';
+                    } else {
+                        modalError.textContent = '✅ 注册成功！请查收验证邮件。';
+                        modalError.style.color = '#22c55e';
+                        setTimeout(() => {
+                            modal.style.display = 'none';
+                            modalError.style.color = '#ef4444';
+                        }, 2000);
+                    }
+                });
+            }
+
+            // ---- 登录 ----
+            if (modalSignIn) {
+                modalSignIn.addEventListener('click', async function() {
+                    const email = modalEmail.value.trim();
+                    const password = modalPassword.value.trim();
+                    if (!email || !password) {
+                        modalError.textContent = '请填写完整邮箱和密码';
+                        return;
+                    }
+                    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                    if (error) {
+                        modalError.textContent = error.message;
+                        modalError.style.color = '#ef4444';
+                    } else {
+                        modalError.textContent = '✅ 登录成功！';
+                        modalError.style.color = '#22c55e';
+                        setTimeout(() => {
+                            modal.style.display = 'none';
+                            modalError.style.color = '#ef4444';
+                        }, 1000);
+                    }
+                });
+            }
+
+            // ---- 退出 ----
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    await supabase.auth.signOut();
+                    showToast('已退出登录', 'info');
+                });
+            }
+
+            // ---- 监听登录状态变化 ----
+            supabase.auth.onAuthStateChange((event, session) => {
+                if (session) {
+                    // 已登录
+                    if (loginBtn) loginBtn.style.display = 'none';
+                    if (logoutBtn) logoutBtn.style.display = 'inline-flex';
+                    if (userStatus) {
+                        userStatus.textContent = '👤 ' + session.user.email;
+                        userStatus.style.display = 'inline';
+                    }
+                } else {
+                    // 未登录
+                    if (loginBtn) loginBtn.style.display = 'inline-flex';
+                    if (logoutBtn) logoutBtn.style.display = 'none';
+                    if (userStatus) userStatus.style.display = 'none';
+                }
+            });
+
+            // ---- 页面加载时检查当前会话 ----
+            supabase.auth.getSession().then(({ data: { session } }) => {
+                if (session) {
+                    if (loginBtn) loginBtn.style.display = 'none';
+                    if (logoutBtn) logoutBtn.style.display = 'inline-flex';
+                    if (userStatus) {
+                        userStatus.textContent = '👤 ' + session.user.email;
+                        userStatus.style.display = 'inline';
+                    }
+                } else {
+                    if (loginBtn) loginBtn.style.display = 'inline-flex';
+                    if (logoutBtn) logoutBtn.style.display = 'none';
+                    if (userStatus) userStatus.style.display = 'none';
+                }
+            });
+
+        }); // 结束 DOMContentLoaded
     </script>
 
 </body>
